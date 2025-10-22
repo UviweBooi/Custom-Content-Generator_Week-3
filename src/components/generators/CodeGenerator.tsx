@@ -2,12 +2,30 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Loader2, Copy, Check, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+const LANGUAGES = [
+  "Python",
+  "JavaScript",
+  "TypeScript",
+  "Java",
+  "C++",
+  "C#",
+  "Go",
+  "Ruby",
+  "PHP",
+  "Swift",
+  "Kotlin",
+  "Rust",
+];
+
 const CodeGenerator = () => {
   const [prompt, setPrompt] = useState("");
+  const [language, setLanguage] = useState("Python");
   const [generatedCode, setGeneratedCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -26,7 +44,7 @@ const CodeGenerator = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-code", {
-        body: { prompt },
+        body: { prompt, language },
       });
 
       if (error) throw error;
@@ -84,8 +102,24 @@ const CodeGenerator = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="language">Programming Language</Label>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger id="language">
+                <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((lang) => (
+                  <SelectItem key={lang} value={lang}>
+                    {lang}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <Textarea
-            placeholder="Example: Create a Python function to sort a list..."
+            placeholder="Example: Create a function to sort a list..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             rows={4}

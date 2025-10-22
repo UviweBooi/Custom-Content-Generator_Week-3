@@ -11,12 +11,14 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const { prompt, language } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
+
+    const fullPrompt = `Generate ${language} code for the following request: ${prompt}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -33,7 +35,7 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: prompt
+            content: fullPrompt
           }
         ],
       }),
